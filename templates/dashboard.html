@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard - IncidentMgr{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="fw-bold mb-0">Dashboard</h2>
+    <p class="text-muted mb-0">
+      Welcome back, <strong>{{ user.username }}</strong>
+      <span class="badge bg-secondary ms-1">{{ user.role }}</span>
+    </p>
+  </div>
+  <a href="{{ url_for('new_incident') }}" class="btn btn-primary">
+    <i class="bi bi-plus-circle me-1"></i>New Incident
+  </a>
+</div>
+
+<!-- ── Stat Cards ── -->
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="card stat-card p-3 border-start border-4 border-primary">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <div class="text-muted small">Total Incidents</div>
+          <div class="fs-2 fw-bold">{{ total }}</div>
+        </div>
+        <i class="bi bi-collection fs-2 text-primary opacity-50"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card stat-card p-3 border-start border-4 border-warning">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <div class="text-muted small">Open</div>
+          <div class="fs-2 fw-bold text-warning">{{ open_count }}</div>
+        </div>
+        <i class="bi bi-exclamation-circle fs-2 text-warning opacity-50"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card stat-card p-3 border-start border-4 border-info">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <div class="text-muted small">In Progress</div>
+          <div class="fs-2 fw-bold text-info">{{ in_progress }}</div>
+        </div>
+        <i class="bi bi-arrow-repeat fs-2 text-info opacity-50"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card stat-card p-3 border-start border-4 border-danger">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <div class="text-muted small">Critical Open</div>
+          <div class="fs-2 fw-bold text-danger">{{ critical }}</div>
+        </div>
+        <i class="bi bi-fire fs-2 text-danger opacity-50"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Recent Incidents Table ── -->
+<div class="card border-0 shadow-sm">
+  <div class="card-header bg-white fw-semibold py-3 d-flex justify-content-between align-items-center">
+    <span><i class="bi bi-clock-history me-2"></i>Recent Incidents</span>
+    <a href="{{ url_for('incidents') }}" class="btn btn-sm btn-outline-primary">View All</a>
+  </div>
+  <div class="card-body p-0">
+    <table class="table table-hover mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>#ID</th>
+          <th>Title</th>
+          <th>Severity</th>
+          <th>Status</th>
+          <th>Assigned To</th>
+          <th>Created</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for inc in recent %}
+        <tr class="incident-row"
+            onclick="location.href='{{ url_for('incident_detail', incident_id=inc.id) }}'">
+          <td class="text-muted">#{{ inc.id }}</td>
+          <td>{{ inc.title }}</td>
+          <td>
+            <span class="badge badge-{{ inc.severity }}">
+              {{ inc.severity.upper() }}
+            </span>
+          </td>
+          <td>
+            {% if inc.status == 'open' %}
+              <span class="badge bg-warning text-dark">Open</span>
+            {% elif inc.status == 'in_progress' %}
+              <span class="badge bg-info">In Progress</span>
+            {% elif inc.status == 'resolved' %}
+              <span class="badge bg-success">Resolved</span>
+            {% else %}
+              <span class="badge bg-secondary">Closed</span>
+            {% endif %}
+          </td>
+          <td>{{ inc.assignee.username if inc.assignee else '—' }}</td>
+          <td class="text-muted">{{ inc.created_at.strftime('%b %d, %Y') }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="6" class="text-center text-muted py-4">No incidents yet.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

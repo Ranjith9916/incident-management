@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}User Management - IncidentMgr{% endblock %}
+{% block content %}
+
+<h2 class="fw-bold mb-4">
+  <i class="bi bi-people me-2"></i>User Management
+</h2>
+
+<div class="card border-0 shadow-sm">
+  <div class="card-body p-0">
+    <table class="table table-hover mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>#</th>
+          <th>Username</th>
+          <th>Email</th>
+          <th>Current Role</th>
+          <th>Joined</th>
+          <th>Update Role</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td class="text-muted">{{ u.id }}</td>
+          <td><strong>{{ u.username }}</strong></td>
+          <td>{{ u.email }}</td>
+          <td>
+            {% if u.role == 'admin' %}
+              <span class="badge bg-danger">Admin</span>
+            {% elif u.role == 'engineer' %}
+              <span class="badge bg-primary">Engineer</span>
+            {% else %}
+              <span class="badge bg-secondary">Viewer</span>
+            {% endif %}
+          </td>
+          <td class="text-muted">{{ u.created_at.strftime('%b %d, %Y') }}</td>
+          <td>
+            <form method="POST"
+                  action="{{ url_for('update_user_role', user_id=u.id) }}"
+                  class="d-flex gap-1">
+              <select name="role" class="form-select form-select-sm" style="width:130px">
+                <option value="viewer"   {% if u.role=='viewer'   %}selected{% endif %}>Viewer</option>
+                <option value="engineer" {% if u.role=='engineer' %}selected{% endif %}>Engineer</option>
+                <option value="admin"    {% if u.role=='admin'    %}selected{% endif %}>Admin</option>
+              </select>
+              <button type="submit" class="btn btn-sm btn-outline-primary">Save</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

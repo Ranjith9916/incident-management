@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% block title %}Incidents - IncidentMgr{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="fw-bold mb-0">All Incidents</h2>
+  <a href="{{ url_for('new_incident') }}" class="btn btn-primary">
+    <i class="bi bi-plus-circle me-1"></i>New Incident
+  </a>
+</div>
+
+<!-- ── Filters ── -->
+<div class="card border-0 shadow-sm mb-3">
+  <div class="card-body py-2">
+    <form class="row g-2 align-items-center" method="GET">
+      <div class="col-auto">
+        <label class="col-form-label fw-semibold">Filter:</label>
+      </div>
+      <div class="col-auto">
+        <select name="status" class="form-select form-select-sm">
+          <option value="">All Statuses</option>
+          <option value="open"        {% if status_filter=='open' %}selected{% endif %}>Open</option>
+          <option value="in_progress" {% if status_filter=='in_progress' %}selected{% endif %}>In Progress</option>
+          <option value="resolved"    {% if status_filter=='resolved' %}selected{% endif %}>Resolved</option>
+        </select>
+      </div>
+      <div class="col-auto">
+        <select name="severity" class="form-select form-select-sm">
+          <option value="">All Severities</option>
+          <option value="critical" {% if severity_filter=='critical' %}selected{% endif %}>Critical</option>
+          <option value="high"     {% if severity_filter=='high' %}selected{% endif %}>High</option>
+          <option value="medium"   {% if severity_filter=='medium' %}selected{% endif %}>Medium</option>
+          <option value="low"      {% if severity_filter=='low' %}selected{% endif %}>Low</option>
+        </select>
+      </div>
+      <div class="col-auto">
+        <button type="submit" class="btn btn-sm btn-outline-primary">Apply</button>
+        <a href="{{ url_for('incidents') }}" class="btn btn-sm btn-outline-secondary ms-1">Clear</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ── Table ── -->
+<div class="card border-0 shadow-sm">
+  <div class="card-body p-0">
+    <table class="table table-hover mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>#ID</th><th>Title</th><th>Severity</th><th>Status</th>
+          <th>Reporter</th><th>Assigned To</th><th>Created</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for inc in incidents %}
+        <tr class="incident-row"
+            onclick="location.href='{{ url_for('incident_detail', incident_id=inc.id) }}'">
+          <td class="text-muted fw-bold">#{{ inc.id }}</td>
+          <td>{{ inc.title }}</td>
+          <td>
+            <span class="badge badge-{{ inc.severity }}">{{ inc.severity.upper() }}</span>
+          </td>
+          <td>
+            {% if inc.status == 'open' %}
+              <span class="badge bg-warning text-dark">Open</span>
+            {% elif inc.status == 'in_progress' %}
+              <span class="badge bg-info">In Progress</span>
+            {% elif inc.status == 'resolved' %}
+              <span class="badge bg-success">Resolved</span>
+            {% else %}
+              <span class="badge bg-secondary">Closed</span>
+            {% endif %}
+          </td>
+          <td>{{ inc.creator.username }}</td>
+          <td>{{ inc.assignee.username if inc.assignee else '—' }}</td>
+          <td class="text-muted">{{ inc.created_at.strftime('%b %d, %Y %H:%M') }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="7" class="text-center text-muted py-5">
+            <i class="bi bi-check-circle fs-3 d-block mb-2"></i>No incidents found.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}
